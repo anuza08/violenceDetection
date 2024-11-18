@@ -1,12 +1,32 @@
 model-settings:
-  device: "cpu"  # Use "cpu" if CUDA is unavailable
-  model-name: "ViT-B/32"
-  prediction-threshold: 0.3
-
+  prediction-threshold: 0.23  # max value of cosine similarity can be 1
+  model-name: 'ViT-B/32'
+  device: 'cpu'
 label-settings:
   labels:
-    - "cat"
-    - "dog"
-    - "car"
-    - "tree"
-  default-label: "unknown"
+  # Generic labels
+    - 'fight'
+    - 'fire'
+    - 'accident'
+    - 'unknown'
+    # Specific labels
+    - 'wrestling'
+    - 'street fight'
+    - 'protest'
+    - 'riot'
+    - 'boxing'
+    - 'building on fire'
+    - 'road accident'
+    - 'office meeting'
+    - 'people walking'
+    - 'group fighting'
+    - 'office environment'
+    - 'office corridor'
+    - 'violence in office'
+    - 'fire in office'
+    - 'people talking'
+    - 'people walking in office'
+    - 'person walking in office'
+    - 'group of people'
+
+  default-label: 'No Violence Detected' # value to return if model's confidence is less than "prediction-threshold"
