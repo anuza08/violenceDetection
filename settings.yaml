@@ -1,0 +1,12 @@
+model-settings:
+  device: "cpu"  # Use "cpu" if CUDA is unavailable
+  model-name: "ViT-B/32"
+  prediction-threshold: 0.3
+
+label-settings:
+  labels:
+    - "cat"
+    - "dog"
+    - "car"
+    - "tree"
+  default-label: "unknown"
