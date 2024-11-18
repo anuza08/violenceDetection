@@ -2,6 +2,7 @@ import clip
 import torch
 import yaml
 import os
+import cv2
 import numpy as np
 from PIL import Image
 
@@ -57,3 +58,35 @@ class Model:
             'label': label_text,
             'confidence': model_confidance
         }
+
+    def process_video(self, input_video_path: str, output_path: str) -> str:
+        cap = cv2.VideoCapture(input_video_path)
+        width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH) + 0.5)
+        height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT) + 0.5)
+        size = (width, height)
+        fourcc = cv2.VideoWriter_fourcc(*'mp4v')
+        fps = int(cap.get(cv2.CAP_PROP_FPS) + 0.5)
+        
+        out = cv2.VideoWriter(output_path, fourcc, fps, size)
+
+        while cap.isOpened():
+            success, frame = cap.read()
+            if not success:
+                break
+
+            frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+            prediction = self.predict(frame_rgb)
+            label = prediction['label']
+            conf = prediction['confidence']
+            
+            # Annotate the frame
+            frame_bgr = cv2.cvtColor(frame_rgb, cv2.COLOR_RGB2BGR)
+            cv2.putText(frame_bgr, f"{label.title()} ({conf:.2f})", 
+                        (50, 50), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2)
+            
+            out.write(frame_bgr)
+
+        cap.release()
+        out.release()
+
+        return output_path
