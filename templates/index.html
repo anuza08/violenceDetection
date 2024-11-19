@@ -5,9 +5,16 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Violence Detection</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
- 
+    
 </head>
 <body>
+    <div class="overlay" id="loaderOverlay">
+        <div class="loader-container">
+            <img src="{{ url_for('static', filename='loader.gif') }}" alt="Loader">
+            <p>Calculating...</p>
+        </div>
+    </div>
+
     <div class="container">
         <h1>Violence Detection</h1>
         <div class="input-section">
@@ -34,55 +41,81 @@
     </div>
     
     <script>
+        function showLoader() {
+            document.getElementById('loaderOverlay').style.display = 'flex';
+            document.querySelector('.container').classList.add('blurred');
+        }
+
+       function hideLoader() {
+    setTimeout(() => {
+        document.getElementById('loaderOverlay').style.display = 'none';
+        document.querySelector('.container').classList.remove('blurred');
+    }, 5000); // 5 seconds delay
+}
         // Image prediction submission
         document.getElementById('uploadImageForm').addEventListener('submit', async (e) => {
             e.preventDefault();
+            showLoader();
+
             const formData = new FormData();
             formData.append('image', document.getElementById('imageInput').files[0]);
-    
-            const response = await fetch('/predict_image', {
-                method: 'POST',
-                body: formData
-            });
-    
-            const data = await response.json();
+
             const resultDiv = document.getElementById('imageResult');
-            resultDiv.innerHTML = `<strong>Label:</strong> ${data.label}<br><strong>Confidence:</strong> ${(data.confidence * 100).toFixed(2)}%`;
+            resultDiv.innerHTML = '';  // Clear previous result
+
+            try {
+                const response = await fetch('/predict_image', {
+                    method: 'POST',
+                    body: formData
+                });
+    
+                const data = await response.json();
+                resultDiv.innerHTML = `<strong>Label:</strong> ${data.label}<br><strong>Confidence:</strong> ${(data.confidence * 100).toFixed(2)}%`;
+            } catch (error) {
+                console.error(error);
+                resultDiv.innerHTML = '<strong>Error processing image.</strong>';
+            } finally {
+                hideLoader();
+            }
         });
     
         // Video prediction submission
         document.getElementById('uploadVideoForm').addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const formData = new FormData();
-        formData.append('video', document.getElementById('videoInput').files[0]);
+            e.preventDefault();
+            showLoader();
 
-        const resultDiv = document.getElementById('videoResult');
-        resultDiv.innerHTML = '<strong>Processing video... Please wait.</strong>';
+            const formData = new FormData();
+            formData.append('video', document.getElementById('videoInput').files[0]);
 
-        try {
-            const response = await fetch('/predict_video', {
-                method: 'POST',
-                body: formData
-            });
+            const resultDiv = document.getElementById('videoResult');
+            resultDiv.innerHTML = '<strong>Processing video... Please wait.</strong>';
 
-            const data = await response.json();
+            try {
+                const response = await fetch('/predict_video', {
+                    method: 'POST',
+                    body: formData
+                });
 
-            if (data.video_url) {
-                resultDiv.innerHTML = `
-                    <strong>Video processed successfully!</strong><br>
-                    <video width="640" height="480" controls>
-                        <source src="${data.video_url}" type="video/mp4">
-                        Your browser does not support the video tag.
-                    </video>
-                `;
-            } else {
+                const data = await response.json();
+
+                if (data.video_url) {
+                    resultDiv.innerHTML = ` 
+                        <strong>Video processed successfully!</strong><br>
+                        <video width="640" height="480" controls>
+                            <source src="${data.video_url}" type="video/mp4">
+                            Your browser does not support the video tag.
+                        </video>
+                    `;
+                } else {
+                    resultDiv.innerHTML = '<strong>Error processing video.</strong>';
+                }
+            } catch (error) {
+                console.error(error);
                 resultDiv.innerHTML = '<strong>Error processing video.</strong>';
+            } finally {
+                hideLoader();
             }
-        } catch (error) {
-            console.error(error);
-            resultDiv.innerHTML = '<strong>Error processing video.</strong>';
-        }
-    });
+        });
     </script>      
 </body>
 </html>
