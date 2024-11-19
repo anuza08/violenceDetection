@@ -1,15 +1,13 @@
 model-settings:
-  prediction-threshold: 0.23  # max value of cosine similarity can be 1
+  prediction-threshold: 0.23  
   model-name: 'ViT-B/32'
   device: 'cpu'
 label-settings:
   labels:
-  # Generic labels
     - 'fight'
     - 'fire'
     - 'accident'
     - 'unknown'
-    # Specific labels
     - 'wrestling'
     - 'street fight'
     - 'protest'
@@ -29,4 +27,4 @@ label-settings:
     - 'person walking in office'
     - 'group of people'
 
-  default-label: 'No Violence Detected' # value to return if model's confidence is less than "prediction-threshold"
+  default-label: 'No Violence Detected' 

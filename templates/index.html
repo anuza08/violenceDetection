@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Violence Detection</title>
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
-    
 </head>
 <body>
     <div class="overlay" id="loaderOverlay">
@@ -46,80 +45,107 @@
             document.querySelector('.container').classList.add('blurred');
         }
 
-       function hideLoader() {
-    setTimeout(() => {
-        document.getElementById('loaderOverlay').style.display = 'none';
-        document.querySelector('.container').classList.remove('blurred');
-    }, 5000); 
-}
-        
-       document.getElementById('uploadImageForm').addEventListener('submit', async (e) => {
-        e.preventDefault();
-        showLoader();
-
-    const formData = new FormData();
-    formData.append('image', document.getElementById('imageInput').files[0]);
-
-    const resultDiv = document.getElementById('imageResult');
-    resultDiv.innerHTML = ''; 
-
-    try {
-        const response = await fetch('/predict_image', {
-            method: 'POST',
-            body: formData
-        });
-
-        const data = await response.json();
-        resultDiv.innerHTML = `
-            <strong>Label:</strong> ${data.label}<br>
-            <strong>Confidence:</strong> ${(data.confidence * 100).toFixed(2)}%<br>
-            <img src="${data.image_url}" alt="Processed Image" style="max-width: 100%; height: auto;">
-        `;
-    } catch (error) {
-        console.error(error);
-        resultDiv.innerHTML = '<strong>Error processing image.</strong>';
-    } finally {
-        hideLoader();
-    }
-});
-
-document.getElementById('uploadVideoForm').addEventListener('submit', async (e) => {
-    e.preventDefault();
-    showLoader();
-
-    const formData = new FormData();
-    formData.append('video', document.getElementById('videoInput').files[0]);
-
-    const resultDiv = document.getElementById('videoResult');
-    resultDiv.innerHTML = '<strong>Processing video... Please wait.</strong>';
-
-    try {
-        const response = await fetch('/predict_video', {
-            method: 'POST',
-            body: formData
-        });
-
-        const data = await response.json();
-
-        if (data.processed_video_url) {
-            resultDiv.innerHTML = `
-                <strong>Label:</strong> ${data.label}<br>
-                <strong>Confidence:</strong> ${(data.confidence * 100).toFixed(2)}%<br>
-                <a href="${data.processed_video_url}" download="processed_video.mp4">
-                    <button>Download Processed Video</button>
-                </a>
-            `;
-        } else {
-            resultDiv.innerHTML = '<strong>Error: No video URL found.</strong>';
+        function hideLoader() {
+            setTimeout(() => {
+                document.getElementById('loaderOverlay').style.display = 'none';
+                document.querySelector('.container').classList.remove('blurred');
+            }, 5000); 
         }
-    } catch (error) {
-        console.error(error);
-        resultDiv.innerHTML = '<strong>Error processing video.</strong>';
-    } finally {
-        hideLoader();
-    }
-});
 
+    function changeBodyColor(label) {
+    const h1 = document.querySelector('h1');
+    const h2s = document.querySelectorAll('h2');
+    const buttons = document.querySelectorAll('button');
+
+    if (label !== "unknown" && label !== "No Violence Detected") {
+        document.body.style.backgroundColor = "red";
+        h1.style.color = "red"; // White color for h1
+        h2s.forEach(h2 => h2.style.color = "red"); // Light yellow color for all h2
+        buttons.forEach(btn => {
+            btn.style.backgroundColor = "#d63031"; // Deep red for buttons
+            btn.style.color = "#ffffff"; // White text for buttons
+        });
+    } else {
+        document.body.style.backgroundColor = "#4facfe"; // Blue gradient
+        h1.style.color = "#000000"; // Black color for h1
+        h2s.forEach(h2 => h2.style.color = "#333333"); // Dark grey color for all h2
+        buttons.forEach(btn => {
+            btn.style.backgroundColor = "#0984e3"; // Blue color for buttons
+            btn.style.color = "#ffffff"; // White text for buttons
+        });
+    }
+}
+
+        document.getElementById('uploadImageForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            showLoader();
+
+            const formData = new FormData();
+            formData.append('image', document.getElementById('imageInput').files[0]);
+
+            const resultDiv = document.getElementById('imageResult');
+            resultDiv.innerHTML = '';
+
+            try {
+                const response = await fetch('/predict_image', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await response.json();
+                resultDiv.innerHTML = `
+                    <strong>Label:</strong> ${data.label}<br>
+                   
+                    <img src="${data.image_url}" alt="Processed Image" style="max-width: 100%; height: auto;">
+                `;
+
+                changeBodyColor(data.label);
+            } catch (error) {
+                console.error(error);
+                resultDiv.innerHTML = '<strong>Error processing image.</strong>';
+            } finally {
+                hideLoader();
+            }
+        });
+
+        document.getElementById('uploadVideoForm').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            showLoader();
+
+            const formData = new FormData();
+            formData.append('video', document.getElementById('videoInput').files[0]);
+
+            const resultDiv = document.getElementById('videoResult');
+            resultDiv.innerHTML = '<strong>Processing video... Please wait.</strong>';
+
+            try {
+                const response = await fetch('/predict_video', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await response.json();
+
+                if (data.processed_video_url) {
+                    resultDiv.innerHTML = `
+                        <strong>Label:</strong> ${data.label}<br>
+                      
+                        <a href="${data.processed_video_url}" download="processed_video.mp4">
+                            <button>Download Processed Video</button>
+                        </a>
+                    `;
+                } else {
+                    resultDiv.innerHTML = '<strong>Error: No video URL found.</strong>';
+                }
+
+                changeBodyColor(data.label);
+            } catch (error) {
+                console.error(error);
+                resultDiv.innerHTML = '<strong>Error processing video.</strong>';
+            } finally {
+                hideLoader();
+            }
+        });
     </script>      
 </body>
 </html>

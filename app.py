@@ -6,12 +6,10 @@ import numpy as np
 
 app = Flask(__name__)
 
-# Base directories
 BASE_DIR = os.path.dirname(os.path.abspath(__file__))
 UPLOAD_DIR = os.path.join(BASE_DIR, 'static', 'uploads')
 PROCESSED_DIR = os.path.join(BASE_DIR, 'static', 'processed')
 
-# Create directories if they don't exist
 os.makedirs(UPLOAD_DIR, exist_ok=True)
 os.makedirs(PROCESSED_DIR, exist_ok=True)
 
@@ -35,13 +33,12 @@ def predict_image():
 
     prediction = model.predict(image)
 
-    # Save the annotated image temporarily
+
     annotated_image_path = os.path.join('static', 'processed', f'annotated_{file.filename}')
     cv2.putText(image, f"{prediction['label']} ({prediction['confidence']:.2f})",
                 (50, 50), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 255, 0), 2)
     cv2.imwrite(annotated_image_path, image)
 
-    # Return prediction and URL to the processed image
     image_url = url_for('static', filename=f'processed/annotated_{file.filename}')
     return jsonify({'label': prediction['label'], 'confidence': prediction['confidence'], 'image_url': image_url}), 200
 
@@ -64,13 +61,13 @@ def process_video(self, input_video_path: str, output_path: str, batch_size: int
         if not ret:
             break
 
-        # Collect batch
+        
         batch_frames.append(frame)
         if len(batch_frames) == batch_size:
             self._process_batch(batch_frames, out)
             batch_frames = []
 
-    # Process any remaining frames
+
     if batch_frames:
         self._process_batch(batch_frames, out)
 
@@ -103,16 +100,14 @@ def predict_video():
     input_video_path = os.path.join(UPLOAD_DIR, file.filename)
     output_video_path = os.path.join(PROCESSED_DIR, f'processed_{file.filename}')
     
-    # Save the uploaded video
     file.save(input_video_path)
 
-    # Process the video
     try:
         processed_video_path = model.process_video(input_video_path, output_video_path)
 
-        # Example: Get prediction details (you might need to modify this depending on your model's output)
-        video_label = "Violence Detected"  # Replace with actual label logic
-        confidence = 0.95  # Replace with actual confidence logic
+        
+        video_label = "Violence Detected"  
+        confidence = 0.95  
 
         video_url = url_for('static', filename=f'processed/processed_{file.filename}')
         return jsonify({
