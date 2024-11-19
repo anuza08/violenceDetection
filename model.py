@@ -59,7 +59,7 @@ class Model:
             'confidence': model_confidance
         }
 
-    def process_video(self, input_video_path: str, output_path: str) -> str:
+    def process_video(self, input_video_path: str, output_path: str, batch_size: int = 16) -> str:
         cap = cv2.VideoCapture(input_video_path)
         width = int(cap.get(cv2.CAP_PROP_FRAME_WIDTH) + 0.5)
         height = int(cap.get(cv2.CAP_PROP_FRAME_HEIGHT) + 0.5)
@@ -69,24 +69,43 @@ class Model:
         
         out = cv2.VideoWriter(output_path, fourcc, fps, size)
 
+        frames_batch = []
+        frame_count = 0
+        print("Starting video processing...")
+
         while cap.isOpened():
             success, frame = cap.read()
             if not success:
+                print("Failed to read frame or video ended.")
                 break
 
-            frame_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
-            prediction = self.predict(frame_rgb)
-            label = prediction['label']
-            conf = prediction['confidence']
-            
-            # Annotate the frame
-            frame_bgr = cv2.cvtColor(frame_rgb, cv2.COLOR_RGB2BGR)
-            cv2.putText(frame_bgr, f"{label.title()} ({conf:.2f})", 
-                        (50, 50), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2)
-            
-            out.write(frame_bgr)
+            # Collect frames in a batch
+            frames_batch.append(frame)
+            frame_count += 1
+
+            # Process the batch when it's full
+            if frame_count % batch_size == 0 or not cap.isOpened():
+                print(f"Processing batch of {batch_size} frames...")
+                # Apply model to the batch of frames
+                frames_rgb = [cv2.cvtColor(f, cv2.COLOR_BGR2RGB) for f in frames_batch]
+                predictions = [self.predict(frame) for frame in frames_rgb]
+
+                # Annotate the frames
+                for i, frame in enumerate(frames_batch):
+                    prediction = predictions[i]
+                    label = prediction['label']
+                    conf = prediction['confidence']
+                    print(f"Frame {frame_count - batch_size + i + 1}: Label: {label}, Confidence: {conf:.2f}")
+                    frame_bgr = cv2.cvtColor(frames_rgb[i], cv2.COLOR_RGB2BGR)
+                    cv2.putText(frame_bgr, f"{label.title()} ({conf:.2f})", 
+                                (50, 50), cv2.FONT_HERSHEY_SIMPLEX, 1, (0, 0, 255), 2)
+                    out.write(frame_bgr)
+
+                # Clear the batch after processing
+                frames_batch = []
 
         cap.release()
         out.release()
 
+        print("Video processing completed.")
         return output_path
