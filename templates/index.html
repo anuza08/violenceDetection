@@ -53,68 +53,73 @@
     }, 5000); 
 }
         
-        document.getElementById('uploadImageForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            showLoader();
+       document.getElementById('uploadImageForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        showLoader();
 
-            const formData = new FormData();
-            formData.append('image', document.getElementById('imageInput').files[0]);
+    const formData = new FormData();
+    formData.append('image', document.getElementById('imageInput').files[0]);
 
-            const resultDiv = document.getElementById('imageResult');
-            resultDiv.innerHTML = ''; 
+    const resultDiv = document.getElementById('imageResult');
+    resultDiv.innerHTML = ''; 
 
-            try {
-                const response = await fetch('/predict_image', {
-                    method: 'POST',
-                    body: formData
-                });
-    
-                const data = await response.json();
-                resultDiv.innerHTML = `<strong>Label:</strong> ${data.label}<br><strong>Confidence:</strong> ${(data.confidence * 100).toFixed(2)}%`;
-            } catch (error) {
-                console.error(error);
-                resultDiv.innerHTML = '<strong>Error processing image.</strong>';
-            } finally {
-                hideLoader();
-            }
+    try {
+        const response = await fetch('/predict_image', {
+            method: 'POST',
+            body: formData
         });
-    
-        document.getElementById('uploadVideoForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            showLoader();
 
-            const formData = new FormData();
-            formData.append('video', document.getElementById('videoInput').files[0]);
+        const data = await response.json();
+        resultDiv.innerHTML = `
+            <strong>Label:</strong> ${data.label}<br>
+            <strong>Confidence:</strong> ${(data.confidence * 100).toFixed(2)}%<br>
+            <img src="${data.image_url}" alt="Processed Image" style="max-width: 100%; height: auto;">
+        `;
+    } catch (error) {
+        console.error(error);
+        resultDiv.innerHTML = '<strong>Error processing image.</strong>';
+    } finally {
+        hideLoader();
+    }
+});
 
-            const resultDiv = document.getElementById('videoResult');
-            resultDiv.innerHTML = '<strong>Processing video... Please wait.</strong>';
+document.getElementById('uploadVideoForm').addEventListener('submit', async (e) => {
+    e.preventDefault();
+    showLoader();
 
-            try {
-                const response = await fetch('/predict_video', {
-                    method: 'POST',
-                    body: formData
-                });
+    const formData = new FormData();
+    formData.append('video', document.getElementById('videoInput').files[0]);
 
-                const data = await response.json();
+    const resultDiv = document.getElementById('videoResult');
+    resultDiv.innerHTML = '<strong>Processing video... Please wait.</strong>';
 
-                if (data.video_url) {
-                    resultDiv.innerHTML = ` 
-                        <strong>Video processed successfully!</strong><br>
-                        <video width="640" height="480" controls>
-                            <source src="${data.video_url}" type="video/mp4">
-                            Your browser does not support the video tag.
-                        </video>
-                    `;
-                } else {
-                    resultDiv.innerHTML = '<strong>Error processing video.</strong>';
-                }
-            } catch (error) {
-                console.error(error);
-                resultDiv.innerHTML = '<strong>Error processing video.</strong>';
-            } finally {
-                hideLoader();
-            }
+    try {
+        const response = await fetch('/predict_video', {
+            method: 'POST',
+            body: formData
         });
+
+        const data = await response.json();
+
+        if (data.processed_video_url) {
+            resultDiv.innerHTML = `
+                <strong>Label:</strong> ${data.label}<br>
+                <strong>Confidence:</strong> ${(data.confidence * 100).toFixed(2)}%<br>
+                <a href="${data.processed_video_url}" download="processed_video.mp4">
+                    <button>Download Processed Video</button>
+                </a>
+            `;
+        } else {
+            resultDiv.innerHTML = '<strong>Error: No video URL found.</strong>';
+        }
+    } catch (error) {
+        console.error(error);
+        resultDiv.innerHTML = '<strong>Error processing video.</strong>';
+    } finally {
+        hideLoader();
+    }
+});
+
     </script>      
 </body>
 </html>
