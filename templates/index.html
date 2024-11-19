@@ -18,7 +18,7 @@
     <div class="container">
         <h1>Violence Detection</h1>
         <div class="input-section">
-            <!-- Image Upload -->
+           
             <div class="image-container">
                 <h2>Upload Image</h2>
                 <form id="uploadImageForm">
@@ -28,7 +28,7 @@
                 <div class="result" id="imageResult"></div>
             </div>
             
-            <!-- Video Upload -->
+           
             <div class="video-container">
                 <h2>Upload Video</h2>
                 <form id="uploadVideoForm">
@@ -50,9 +50,9 @@
     setTimeout(() => {
         document.getElementById('loaderOverlay').style.display = 'none';
         document.querySelector('.container').classList.remove('blurred');
-    }, 5000); // 5 seconds delay
+    }, 5000); 
 }
-        // Image prediction submission
+        
         document.getElementById('uploadImageForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             showLoader();
@@ -61,7 +61,7 @@
             formData.append('image', document.getElementById('imageInput').files[0]);
 
             const resultDiv = document.getElementById('imageResult');
-            resultDiv.innerHTML = '';  // Clear previous result
+            resultDiv.innerHTML = ''; 
 
             try {
                 const response = await fetch('/predict_image', {
@@ -79,7 +79,6 @@
             }
         });
     
-        // Video prediction submission
         document.getElementById('uploadVideoForm').addEventListener('submit', async (e) => {
             e.preventDefault();
             showLoader();
