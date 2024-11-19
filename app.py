@@ -57,6 +57,7 @@ def predict_video():
 
      # Return the video URL to the frontend for playback
     video_url = url_for('static', filename=f'processed/processed_{file.filename}')
+    return jsonify({'processed_video_url': video_url}), 200
 
 if __name__ == '__main__':
     app.run(debug=True)
