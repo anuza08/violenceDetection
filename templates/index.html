@@ -51,18 +51,22 @@
     
         // Video prediction submission
         document.getElementById('uploadVideoForm').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            const formData = new FormData();
-            formData.append('video', document.getElementById('videoInput').files[0]);
-    
+        e.preventDefault();
+        const formData = new FormData();
+        formData.append('video', document.getElementById('videoInput').files[0]);
+
+        const resultDiv = document.getElementById('videoResult');
+        resultDiv.innerHTML = '<strong>Processing video... Please wait.</strong>';
+
+        try {
             const response = await fetch('/predict_video', {
                 method: 'POST',
                 body: formData
             });
-    
+
             const data = await response.json();
-            const resultDiv = document.getElementById('videoResult');
-            if (data.video_path) {
+
+            if (data.video_url) {
                 resultDiv.innerHTML = `
                     <strong>Video processed successfully!</strong><br>
                     <video width="640" height="480" controls>
@@ -71,9 +75,13 @@
                     </video>
                 `;
             } else {
-                resultDiv.textContent = 'Error processing video';
+                resultDiv.innerHTML = '<strong>Error processing video.</strong>';
             }
-        });
+        } catch (error) {
+            console.error(error);
+            resultDiv.innerHTML = '<strong>Error processing video.</strong>';
+        }
+    });
     </script>      
 </body>
 </html>
