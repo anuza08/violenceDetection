@@ -2,7 +2,12 @@
 # violenceDetection
 <h2>Problem Statement</h2>
 This project aims to develop a Violence Detection System that can accurately identify instances of violence in images and videos using a deep learning model. The system leverages the CLIP (Contrastive Language-Image Pretraining) model to predict whether a given visual input contains signs of violence. It processes both images and videos, annotating the predictions directly on the media.
-https://github.com/user-attachments/assets/fdd60018-4c1b-4731-a42b-067f64887188
+
+
+
+https://github.com/user-attachments/assets/cc676574-a2bd-4e69-8967-d56f1976cd7d
+
+
 
 
 Features
