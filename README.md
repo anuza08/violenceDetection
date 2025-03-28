@@ -136,48 +136,6 @@ pip install -r requirements.txt
 - Develop a more intuitive and interactive user interface.
 
 ---
-
-## 👨‍💻 Author
-**Anuja**
-
----
-
 ## 📜 License
 This project is licensed under the **MIT License**.
 
-
-<h2>Problem Statement</h2>
-This project aims to develop a Violence Detection System that can accurately identify instances of violence in images and videos using a deep learning model. The system leverages the CLIP (Contrastive Language-Image Pretraining) model to predict whether a given visual input contains signs of violence. It processes both images and videos, annotating the predictions directly on the media.
-
-
-
-https://github.com/user-attachments/assets/cc676574-a2bd-4e69-8967-d56f1976cd7d
-
-
-
-
-<h2>Features</h2>
-
-Image Prediction: Detects violence in uploaded images and returns the annotated image along with the prediction label and confidence score.
-
-Video Prediction: Processes video files in batches, annotating detected violence scenes with confidence scores directly on the frames.
-
-Robust Model Integration: Uses the powerful CLIP model for feature extraction and violence detection.
-
-Batch Processing: Efficiently handles video data in customizable batch sizes for optimized performance.
-
-
-
-<h2>Dependencies</h2>
-
-Flask: Web framework to build the application.
-
-OpenCV: Used for image and video processing.
-
-CLIP (by OpenAI): Model for powerful feature extraction and prediction.
-
-PyTorch: Deep learning framework for model integration.
-
-NumPy: For numerical operations on data.
-
-Pillow: For image conversion.
